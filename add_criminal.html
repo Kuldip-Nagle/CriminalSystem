@@ -1,0 +1,244 @@
+{% extends "base.html" %} {% block title %}Add Criminal{% endblock %} {% block
+content %}
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-lg border-0">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Add Criminal Record</h4>
+      </div>
+
+      <div class="card-body bg-white">
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+          <input type="text" name="fakeusernameremembered" autocomplete="off" style="display:none;">
+          <input type="password" name="fakepasswordremembered" autocomplete="new-password" style="display:none;">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Full Name</label>
+              <input
+                type="text"
+                name="name"
+                class="form-control"
+                placeholder="Enter name"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                required
+              />
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Age</label>
+              <input
+                type="number"
+                name="age"
+                class="form-control"
+                placeholder="Enter age"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Gender</label>
+              <select name="gender" class="form-select">
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Status</label>
+              <select name="status" class="form-select">
+                <option value="">Select status</option>
+                <option value="Arrested">Arrested</option>
+                <option value="Released">Released</option>
+                <option value="At Large">At Large</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Address</label>
+            <input
+              type="text"
+              name="address"
+              class="form-control"
+              placeholder="Enter address"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+            />
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Case Number</label>
+              <input
+                type="text"
+                name="case_number"
+                class="form-control"
+                placeholder="CASE-1234"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                required
+              />
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Arrest Date</label>
+              <input
+                type="date"
+                name="arrest_date"
+                class="form-control"
+                autocomplete="off"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Crime Description</label>
+            <input
+              type="text"
+              name="crime"
+              class="form-control"
+              placeholder="Enter crime details"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              required
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Upload Photo</label>
+            <input type="file" name="image" id="imageInput" class="form-control" autocomplete="off" accept="image/*" required />
+          </div>
+
+          <div class="mb-4">
+            <div class="d-flex flex-wrap gap-2">
+              <button type="button" id="startCameraBtn" class="btn btn-outline-primary">Start Camera</button>
+              <button type="button" id="capturePhotoBtn" class="btn btn-primary" disabled>Capture Photo</button>
+              <button type="button" id="stopCameraBtn" class="btn btn-secondary d-none">Stop Camera</button>
+            </div>
+          </div>
+
+          <div id="cameraShell" class="mb-4 d-none">
+            <video id="cameraPreview" autoplay muted playsinline class="w-100 rounded" style="max-height: 360px; background: #000;"></video>
+          </div>
+
+          <div id="photoPreviewShell" class="mb-4 d-none">
+            <label class="form-label">Selected photo preview</label>
+            <img id="photoPreview" class="img-fluid rounded shadow-sm" alt="Captured preview" />
+          </div>
+
+          <input type="hidden" name="captured_image_data" id="capturedImageData" />
+
+          <div class="d-flex justify-content-between">
+            <a href="/dashboard" class="btn btn-secondary"> ⬅ Back </a>
+
+            <button type="submit" class="btn btn-primary">Save Record</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const imageInput = document.getElementById('imageInput');
+  const capturedImageData = document.getElementById('capturedImageData');
+  const startCameraBtn = document.getElementById('startCameraBtn');
+  const capturePhotoBtn = document.getElementById('capturePhotoBtn');
+  const stopCameraBtn = document.getElementById('stopCameraBtn');
+  const cameraShell = document.getElementById('cameraShell');
+  const cameraPreview = document.getElementById('cameraPreview');
+  const photoPreviewShell = document.getElementById('photoPreviewShell');
+  const photoPreview = document.getElementById('photoPreview');
+  let cameraStream = null;
+
+  function showPreview(url) {
+    photoPreview.src = url;
+    photoPreviewShell.classList.remove('d-none');
+  }
+
+  function hidePreview() {
+    photoPreview.src = '';
+    photoPreviewShell.classList.add('d-none');
+  }
+
+  imageInput.addEventListener('change', () => {
+    const file = imageInput.files[0];
+    if (file) {
+      capturedImageData.value = '';
+      showPreview(URL.createObjectURL(file));
+    }
+  });
+
+  startCameraBtn.addEventListener('click', async () => {
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false });
+      cameraPreview.srcObject = cameraStream;
+      cameraShell.classList.remove('d-none');
+      stopCameraBtn.classList.remove('d-none');
+      capturePhotoBtn.disabled = false;
+    } catch (error) {
+      console.error('Camera access error:', error);
+      alert('Unable to access camera. Please allow camera permission or use file upload.');
+    }
+  });
+
+  stopCameraBtn.addEventListener('click', () => {
+    if (!cameraStream) {
+      return;
+    }
+    cameraStream.getTracks().forEach((track) => track.stop());
+    cameraStream = null;
+    cameraPreview.srcObject = null;
+    cameraShell.classList.add('d-none');
+    stopCameraBtn.classList.add('d-none');
+    capturePhotoBtn.disabled = true;
+  });
+
+  capturePhotoBtn.addEventListener('click', () => {
+    if (!cameraPreview.videoWidth || !cameraPreview.videoHeight) {
+      alert('Camera preview not ready yet.');
+      return;
+    }
+
+    const captureCanvas = document.createElement('canvas');
+    captureCanvas.width = cameraPreview.videoWidth;
+    captureCanvas.height = cameraPreview.videoHeight;
+    captureCanvas.getContext('2d').drawImage(cameraPreview, 0, 0, captureCanvas.width, captureCanvas.height);
+
+    captureCanvas.toBlob((blob) => {
+      if (!blob) {
+        alert('Unable to capture photo.');
+        return;
+      }
+
+      const file = new File([blob], 'capture.jpg', { type: 'image/jpeg' });
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      imageInput.files = dataTransfer.files;
+      capturedImageData.value = captureCanvas.toDataURL('image/jpeg', 0.8);
+      showPreview(URL.createObjectURL(file));
+      stopCameraBtn.click();
+    }, 'image/jpeg', 0.8);
+  });
+</script>
+
+{% endblock %}

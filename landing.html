@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Criminal Record Management System{% endblock %}
+
+{% block content %}
+
+<style>
+  .landing-hero {
+    background: linear-gradient(135deg, #0b2a52 0%, #2b6cb0 100%);
+    border-radius: 1rem;
+    padding: 3rem 2rem;
+    color: white;
+    overflow: hidden;
+  }
+
+  .landing-hero .lead {
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  .landing-feature {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem 1rem;
+    align-items: start;
+  }
+
+  .landing-feature i {
+    margin-top: 0.2rem;
+    color: #f8f9fa;
+    font-size: 1.1rem;
+  }
+
+  .login-card {
+    border-radius: 1rem;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+  }
+</style>
+
+<div class="container py-5">
+  <div class="row g-4 align-items-center">
+    <div class="col-lg-7">
+      <div class="landing-hero">
+        <h1 class="display-5 fw-bold">Criminal Identification and Record</h1>
+        <p class="lead mt-3">AI-powered criminal identification and face recognition for secure police verification.</p>
+
+        <div class="landing-feature">
+          <i class="fa fa-id-card"></i>
+          <div>Identity verification with live face matching</div>
+        </div>
+        <div class="landing-feature">
+          <i class="fa fa-user-shield"></i>
+          <div>Secure criminal record management</div>
+        </div>
+        <div class="landing-feature">
+          <i class="fa fa-file-alt"></i>
+          <div>Case tracking and arrest history</div>
+        </div>
+        <div class="landing-feature">
+          <i class="fa fa-camera"></i>
+          <div>Real-time face recognition scanning</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card login-card">
+        <div class="card-body p-4 p-lg-5">
+          <h4 class="mb-4 text-center">Authority Login</h4>
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+              {% if category == 'danger' %}
+                <div class="alert alert-danger">{{ message }}</div>
+              {% endif %}
+            {% endfor %}
+          {% endwith %}
+          <form action="/login" method="POST">
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input name="username" type="text" class="form-control" placeholder="Enter username" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input name="password" type="password" class="form-control" placeholder="Enter password" />
+            </div>
+            <div class="d-grid mt-4">
+              <button class="btn btn-primary">Login</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

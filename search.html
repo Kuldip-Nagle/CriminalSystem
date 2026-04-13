@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Search Criminal Records{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h3>Search & Filter Records</h3>
+    <p class="mb-0 text-muted">Use the filters to quickly narrow down criminals by category, status, gender, crime, or case details.</p>
+  </div>
+  <a href="/records" class="btn btn-secondary">View All Records</a>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h5 class="card-title">Filter by category</h5>
+        <form method="GET">
+          <div class="mb-3">
+            <label class="form-label">Search</label>
+            <input name="q" type="search" class="form-control" placeholder="Name, crime, address, case no..." value="{{ request.args.get('q', '') }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+              <option value="">All statuses</option>
+              {% for option in statuses %}
+              <option value="{{ option }}" {% if request.args.get('status') == option %}selected{% endif %}>{{ option }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Gender</label>
+            <select name="gender" class="form-select">
+              <option value="">All genders</option>
+              {% for option in genders %}
+              <option value="{{ option }}" {% if request.args.get('gender') == option %}selected{% endif %}>{{ option }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Crime</label>
+            <select name="crime" class="form-select">
+              <option value="">All crimes</option>
+              {% for option in crimes %}
+              <option value="{{ option }}" {% if request.args.get('crime') == option %}selected{% endif %}>{{ option }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">From</label>
+              <input name="start_date" type="date" class="form-control" value="{{ request.args.get('start_date', '') }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">To</label>
+              <input name="end_date" type="date" class="form-control" value="{{ request.args.get('end_date', '') }}">
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary flex-fill">Apply filters</button>
+            <a href="/search" class="btn btn-outline-secondary flex-fill">Reset</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th>Sr No</th>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Case No</th>
+                <th>Status</th>
+                <th>Crime</th>
+                <th>Arrest Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if criminals %}
+                {% for c in criminals %}
+                <tr>
+                  <td>{{ loop.index }}</td>
+                  <td>{{ c.name }}</td>
+                  <td>{{ c.gender or 'N/A' }}</td>
+                  <td>{{ c.case_number or 'N/A' }}</td>
+                  <td>{{ c.status or 'N/A' }}</td>
+                  <td>{{ c.crime }}</td>
+                  <td>{{ c.arrest_date or 'N/A' }}</td>
+                  <td>
+                    <a href="/delete/{{ c.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this record?')">Delete</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="8" class="text-center text-muted">No records match this filter.</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
